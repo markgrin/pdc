@@ -1,6 +1,10 @@
 #include <iostream>
+#include "core.hpp"
+#include "commands/commands.hpp"
+
 
 int main () {
     std::cout << "Predictive dialing methods analyzer\n";
-    return 0;
+    pdc::Core core;
+    return pdc::command_cycle(core);
 }
