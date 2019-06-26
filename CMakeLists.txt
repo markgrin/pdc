@@ -5,6 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 set (ANALYZER_SRC src/main.cpp
                   src/core.cpp
                   src/simulate.cpp
+                  src/emp_dist.cpp
                   src/commands/commands.cpp
                   src/commands/generate.cpp)
 
