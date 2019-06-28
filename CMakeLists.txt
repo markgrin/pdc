@@ -7,6 +7,7 @@ set (ANALYZER_SRC src/main.cpp
                   src/simulate.cpp
                   src/emp_dist.cpp
                   src/commands/commands.cpp
-                  src/commands/generate.cpp)
+                  src/commands/generate.cpp
+                  src/commands/dataset_io.cpp)
 
 add_executable(analyzer ${ANALYZER_SRC})

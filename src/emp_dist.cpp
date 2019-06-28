@@ -20,25 +20,24 @@ void EmpDist::add (double x) {
     }
 }
 
-    double EmpDist::cdf (double x) const {
-        std::size_t sum = 0;
-        for (auto point : points)
-            if (point < x)
-                sum++;
-        if (std::empty(points))
-            return 0;
-        return static_cast<double>(sum) / std::size(points);
-    }
+double EmpDist::cdf (double x) const {
+    std::size_t sum = 0;
+    for (auto point : points)
+        if (point < x)
+            sum++;
+    if (std::empty(points))
+        return 0;
+    return static_cast<double>(sum) / std::size(points);
+}
 
-    double EmpDist::icdf (double p) const {
-        if (std::empty(points))
-            return 1;
-        std::size_t passed = 0;
-        for (auto it = sorted.begin(); it < sorted.end(); it++) {
-            if (passed / std::size(points) >= 0)
-                return it->first;
-            passed += it->second;
-        }
-        return (--points.end())->first;
+double EmpDist::icdf (double p) const {
+    if (std::empty(points))
+        return 1;
+    std::size_t passed = 0;
+    for (auto it = sorted.begin(); it != sorted.end(); it++) {
+        if (passed / std::size(points) >= 0)
+            return it->first;
+        passed += it->second;
     }
+    return (--sorted.end())->first;
 }

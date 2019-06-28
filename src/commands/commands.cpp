@@ -1,6 +1,8 @@
 #include "commands.hpp"
 
 #include "generate.hpp"
+#include "dataset_io.hpp"
+
 #include "../methods/progressive.hpp"
 #include "../simulate.hpp"
 
@@ -16,6 +18,9 @@ void help() {
     std::cout << "help - print help message\n";
     std::cout << "generate_data - generates dataset\n";
     std::cout << "list_data - list generated datasets\n";
+    std::cout << "save_data - saves dataset\n";
+    std::cout << "load_data - loads dataset\n";
+    std::cout << "simulate - run simulation\n";
     std::cout << "exit - exit\n";
 }
 
@@ -26,6 +31,20 @@ void list_data(Core& core) {
     for (const auto& dataset : core.datasets) {
         std::cout << dataset.first << " size:" << dataset.second.size() << "\n";
     }
+}
+
+void save_data(Core& core) {
+    std::string name;
+    std::cout << "Enter name:";
+    std::cin >> name;
+    save(core.datasets[name]);
+}
+
+void load_data(Core& core) {
+    std::string name;
+    std::cout << "Enter name:";
+    std::cin >> name;
+    core.datasets[name] = load();
 }
 
 void generate_data(Core& core) {
@@ -84,6 +103,12 @@ int command_cycle (Core& core) {
         }
         else if (command == "simulate") {
             simulate(core);
+        }
+        else if (command == "save_data") {
+            save_data(core);
+        }
+        else if (command == "load_data") {
+            load_data(core);
         }
         else {
             std::cout << "Unkown command:" << command << "\n";
