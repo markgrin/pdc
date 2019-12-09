@@ -35,9 +35,24 @@ double EmpDist::icdf (double p) const {
         return 1;
     std::size_t passed = 0;
     for (auto it = sorted.begin(); it != sorted.end(); it++) {
-        if (passed / std::size(points) >= 0)
+        if (static_cast<double>(passed) / std::size(points) >= p)
             return it->first;
         passed += it->second;
     }
     return (--sorted.end())->first;
+}
+
+double EmpDist::cond (double a, double b) const {
+    if (std::empty(points))
+        return 1;
+    std::size_t passed = 0;
+    for (auto point : points)
+        if (a + b < point )
+            passed++;
+
+    double numerator = static_cast<double>(passed) / std::size(points);
+
+    double denominator = (1 - cdf(b));
+
+    return numerator / denominator;
 }

@@ -4,6 +4,7 @@
 #include "dataset_io.hpp"
 
 #include "../methods/progressive.hpp"
+#include "../methods/grin.hpp"
 #include "../simulate.hpp"
 
 #include <iostream>
@@ -58,9 +59,15 @@ void generate_data(Core& core) {
 
 void simulate(Core& core) {
     std::string name;
+    std::cout << "method:";
+    std::cin >> name;
+    Progressive prog;
+    Grin grin;
+    Method* method = &grin;
+    if (name == "progressive")
+        method = &prog;
     std::cout << "dataset:";
     std::cin >> name;
-    Progressive progressive;
     std::cout << "agents:";
     std::size_t agents = 20;
     std::cin >> agents;
@@ -69,7 +76,7 @@ void simulate(Core& core) {
     std::cin >> step;
 
     auto dataset = core.datasets[name];
-    auto result = simulate(step, agents, progressive, dataset);
+    auto result = simulate(step, agents, *method, dataset);
 
     std::cout << "duration:" << result.duration << "\n";
     std::cout << "answered:" << result.answered << "\n";

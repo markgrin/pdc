@@ -13,10 +13,28 @@ public:
     EmpDist () = delete;
     EmpDist (std::size_t maxLength) : max (maxLength) {}
 
+    /**
+     * Add value to empirical distribution.
+     */
     void add (double x);
 
+    /**
+     * Cummulative density function
+     */
     double cdf (double x) const;
+
+    /**
+     * Inverse Cummulative density function
+     * TODO:Specify
+     */
     double icdf (double p) const;
+
+    /**
+     * p( x > a + b | x > a ) = p ( a + b < x ) / p ( x > b )
+     */
+    double cond (double a, double b) const;
+
+
 };
 
 #endif // HPP_A5DD1A1091FC4581AA989BB007BE8170

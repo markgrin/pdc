@@ -67,11 +67,13 @@ SimResult simulate (double step, std::size_t agents, Method& method, const std::
                 timestamp += step;
                 if (timestamp > setup) {
                     if (!answered) {
+                        method.addCall(it->call);
                         it = call_points.erase(it);
                         result.not_answered++;
                         continue;
                     }
                     if (!free_agents) {
+                        method.addCall(it->call);
                         it = call_points.erase(it);
                         //std::cout << "ABANDON!\n";
                         result.abandoned++;
@@ -85,6 +87,7 @@ SimResult simulate (double step, std::size_t agents, Method& method, const std::
             }
             timestamp += step;
             if (timestamp > setup + service) {
+                method.addCall(it->call);
                 it = call_points.erase(it);
                 result.finished++;
                 free_agents++;
