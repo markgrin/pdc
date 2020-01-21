@@ -18,7 +18,7 @@ public:
     bin_poi(double p, Ts ... ps) :
             bin_poi(ps...) {
         if (p > 1 || p < 0)
-            throw std::logic_error("probability shoul be bounded in [0, 1]");
+            throw std::runtime_error("probability shoul be bounded in [0, 1]");
         success_probabilities.push_back(p);
     }
 };

@@ -1,6 +1,6 @@
-#ifndef HPP_3BE77A598E70458ABAF0AA33090ADD60
+#ifndef HPP_B8FC6211CE06414788CB151FBE2FC2E4
 
-#define HPP_3BE77A598E70458ABAF0AA33090ADD60
+#define HPP_B8FC6211CE06414788CB151FBE2FC2E4
 
 #include "method.hpp"
 #include "../math/emp_dist.hpp"
@@ -8,7 +8,7 @@
 
 namespace pdc {
 
-class Grin : public Method {
+class Berlang : public Method {
     EmpDist setup_dist = EmpDist(200);
     EmpDist service_dist = EmpDist(200);
 
@@ -21,12 +21,10 @@ public:
                            std::vector<double> setup,
                            std::vector<double> service)
     {
-        double need = 0.97;
-        double seconds_with_no_free = 1; //;
-        double agents_free_in_that_seconds = 1;//;
+        return 1;
     }
 };
 
 } // namespace pdc
 
-#endif // HPP_3BE77A598E70458ABAF0AA33090ADD60
+#endif // HPP_B8FC6211CE06414788CB151FBE2FC2E4
