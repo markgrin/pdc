@@ -5,6 +5,7 @@
 
 #include "../methods/progressive.hpp"
 #include "../methods/grin.hpp"
+#include "../methods/berlang.hpp"
 #include "../simulate.hpp"
 
 #include <iostream>
@@ -62,10 +63,14 @@ void simulate(Core& core) {
     std::cout << "method:";
     std::cin >> name;
     Progressive prog;
+    Berlang berlang;
     Grin grin;
     Method* method = &grin;
-    if (name == "progressive")
+    if (name == "progressive") {
         method = &prog;
+    } else if (name == "berlang") {
+        method = &berlang;
+    }
     std::cout << "dataset:";
     std::cin >> name;
     std::cout << "agents:";

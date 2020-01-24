@@ -34,6 +34,9 @@ public:
      */
     double cond (double a, double b) const;
 
+    double mean () const;
+
+    bool is_full() const { return points.size() == max; }
 
 };
 

@@ -56,3 +56,14 @@ double EmpDist::cond (double a, double b) const {
 
     return numerator / denominator;
 }
+
+double EmpDist::mean () const {
+    if (std::empty(points)) {
+        return 0;
+    }
+    double sum = 0;
+    for (auto point : points) {
+        sum += point;
+    }
+    return sum / points.size();
+}

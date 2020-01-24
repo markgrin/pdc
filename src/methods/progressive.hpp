@@ -7,6 +7,7 @@
 namespace pdc {
 
 class Progressive : public Method {
+    public:
     void addCall(Call& call) override {
     }
     MethodResult calculate (std::size_t agents,

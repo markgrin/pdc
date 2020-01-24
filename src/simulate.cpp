@@ -20,9 +20,10 @@ struct LastCallTime {
 std::size_t toNewCalls (const MethodResult& result, LastCallTime& call_time) {
     if (result.is_rate) {
         double time_passed = call_time.time_passed - call_time.overtime;
-        if (time_passed && result.rate / time_passed > 1) {
-            call_time.overtime = time_passed - static_cast<std::size_t>(result.rate / time_passed);
-            return static_cast<std::size_t>(result.rate / time_passed);
+        std::cout << "TIME PASSED:" << time_passed << " AND result.rate:" << result.rate << "\n";
+        if (time_passed && time_passed / result.rate > 1) {
+            call_time.overtime = time_passed - static_cast<std::size_t>(time_passed / result.rate);
+            return static_cast<std::size_t>(time_passed / result.rate);
         }
         return 0u;
     }
@@ -40,6 +41,8 @@ std::size_t makeNewCalls (Method& method, const std::vector<Call>& calls, std::l
     }
     auto result = toNewCalls(method.calculate(agents, setup_calls, service_calls), since_last_call);
     std::size_t new_calls = result;
+    std::cout << "Making " << new_calls << " new calls\n";
+    std::cout << "Time passed " << since_last_call.time_passed << " and overtime " << since_last_call.overtime << "\n";
 
     //std::cout << "Make " << new_calls << "\n";
 
@@ -75,7 +78,7 @@ SimResult simulate (double step, std::size_t agents, Method& method, const std::
     while (true) {
         std::size_t free_agents = makeNewCalls(method, calls, call_points, newCallIndex, agents, since_last_call);
 
-        if (newCallIndex >= calls.size())
+        if (newCallIndex >= calls.size() && call_points.empty())
             break ;
 
         for (auto it = call_points.begin(); it != call_points.end();) {

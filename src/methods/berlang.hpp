@@ -4,6 +4,10 @@
 
 #include "method.hpp"
 #include "../math/emp_dist.hpp"
+#include "../math/berlang.hpp"
+#include "progressive.hpp"
+
+
 #include <iostream>
 
 namespace pdc {
@@ -20,7 +24,18 @@ public:
     MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,
                            std::vector<double> service) override {
-        return 1;
+        if (!setup_dist.is_full()) {
+            std::cout << "FULL\n";
+            return Progressive().calculate(agents, setup, service);
+        }
+        double possible_intensity = iberlang(0.97, agents);
+        std::cout << "possible intensity:" << possible_intensity << "\n";
+        possible_intensity; // /= pickup prob.
+        double mean = service_dist.mean();
+        std::cout << "mean" << mean << "\n";
+        double per_second = (mean ? mean / possible_intensity : 0);
+        std::cout << "per second:" << per_second << "\n---\n";
+        return MethodResult(per_second);
     }
 };
 
