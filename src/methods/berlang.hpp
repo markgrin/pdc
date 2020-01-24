@@ -17,10 +17,9 @@ public:
         setup_dist.add(call.setup);
         service_dist.add(call.service);
     }
-    std::size_t calculate (std::size_t agents,
+    MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,
-                           std::vector<double> service)
-    {
+                           std::vector<double> service) override {
         return 1;
     }
 };

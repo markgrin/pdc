@@ -17,13 +17,13 @@ public:
         setup_dist.add(call.setup);
         service_dist.add(call.service);
     }
-    std::size_t calculate (std::size_t agents,
+    MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,
-                           std::vector<double> service)
-    {
+                           std::vector<double> service) override {
         double need = 0.97;
         double seconds_with_no_free = 1; //;
         double agents_free_in_that_seconds = 1;//;
+        return MethodResult(1ul);
     }
 };
 

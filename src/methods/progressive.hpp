@@ -9,11 +9,11 @@ namespace pdc {
 class Progressive : public Method {
     void addCall(Call& call) override {
     }
-    std::size_t calculate (std::size_t agents,
+    MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,
-                           std::vector<double> service)
+                           std::vector<double> service) override
     {
-        return (agents > setup.size() + service.size() + 1 ? agents - setup.size() - service.size() - 1 : 0);
+        return MethodResult(agents > setup.size() + service.size() + 1 ? agents - setup.size() - service.size() - 1 : 0);
     }
 };
 

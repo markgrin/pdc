@@ -21,7 +21,8 @@ std::size_t makeNewCalls (Method& method, const std::vector<Call>& calls, std::l
         else
             setup_calls.push_back(call_point.timestamp);
     }
-    std::size_t new_calls = method.calculate(agents, setup_calls, service_calls);
+    auto result = method.calculate(agents, setup_calls, service_calls).calls;
+    std::size_t new_calls = result;
 
     //std::cout << "Make " << new_calls << "\n";
 
