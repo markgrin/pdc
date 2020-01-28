@@ -70,6 +70,10 @@ void simulate(Core& core) {
         method = &prog;
     } else if (name == "berlang") {
         method = &berlang;
+        std::cout << "critical value:";
+        double critical;
+        std::cin >> critical;
+        berlang.set_critical(critical);
     }
     std::cout << "dataset:";
     std::cin >> name;

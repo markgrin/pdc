@@ -19,11 +19,11 @@ struct LastCallTime {
 
 std::size_t toNewCalls (const MethodResult& result, LastCallTime& call_time) {
     if (result.is_rate) {
-        double time_passed = call_time.time_passed - call_time.overtime;
-        std::cout << "TIME PASSED:" << time_passed << " AND result.rate:" << result.rate << "\n";
-        if (time_passed && time_passed / result.rate > 1) {
-            call_time.overtime = time_passed - static_cast<std::size_t>(time_passed / result.rate);
-            return static_cast<std::size_t>(time_passed / result.rate);
+        double time_passed = call_time.time_passed + call_time.overtime;
+        std::cout << "time_passed:" << call_time.time_passed << " + overtime:" << call_time.overtime << " = " << time_passed << "\n";
+        if (time_passed && result.rate * time_passed > 1) {
+            call_time.overtime = time_passed - static_cast<std::size_t>(time_passed * result.rate) / result.rate;
+            return static_cast<std::size_t>(time_passed * result.rate);
         }
         return 0u;
     }
@@ -41,19 +41,17 @@ std::size_t makeNewCalls (Method& method, const std::vector<Call>& calls, std::l
     }
     auto result = toNewCalls(method.calculate(agents, setup_calls, service_calls), since_last_call);
     std::size_t new_calls = result;
-    std::cout << "Making " << new_calls << " new calls\n";
-    std::cout << "Time passed " << since_last_call.time_passed << " and overtime " << since_last_call.overtime << "\n";
 
-    //std::cout << "Make " << new_calls << "\n";
+    std::cout << "Make " << new_calls << "\n";
 
     for (std::size_t i = 0; i < new_calls; i++) {
+        since_last_call.time_passed = 0; 
         if ( newCallIndex >= calls.size())
             break;
         Call newCall = calls[newCallIndex++];
         CallPoint newCallPoint = {newCall, 0};
         //std::cout << newCall.answered << " : " << newCall.setup << " : " << newCall.service << "\n";
         call_points.push_back(newCallPoint);
-        since_last_call.time_passed = 0; 
     }
 
     //std::cout << "Free " << agents << "\nsetup_calls:";

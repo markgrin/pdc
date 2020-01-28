@@ -15,26 +15,25 @@ namespace pdc {
 class Berlang : public Method {
     EmpDist setup_dist = EmpDist(200);
     EmpDist service_dist = EmpDist(200);
+    double critical = 0.03;
 
 public:
     void addCall(Call& call) override {
         setup_dist.add(call.setup);
         service_dist.add(call.service);
     }
+    void set_critical(double critical_in) { critical = critical_in; }
     MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,
                            std::vector<double> service) override {
         if (!setup_dist.is_full()) {
-            std::cout << "FULL\n";
             return Progressive().calculate(agents, setup, service);
         }
-        double possible_intensity = iberlang(0.97, agents);
-        std::cout << "possible intensity:" << possible_intensity << "\n";
+        double possible_intensity = iberlang(critical, agents);
         possible_intensity; // /= pickup prob.
         double mean = service_dist.mean();
-        std::cout << "mean" << mean << "\n";
-        double per_second = (mean ? mean / possible_intensity : 0);
-        std::cout << "per second:" << per_second << "\n---\n";
+        double per_second = (mean ? possible_intensity / mean : 0);
+        std::cout << "per_second:" << per_second << " or every " << 1 / per_second << "\n";
         return MethodResult(per_second);
     }
 };
