@@ -1,13 +1,24 @@
 #include "bin_poi.hpp"
 
+#include <boost/multiprecision/cpp_complex.hpp>
+#include <iostream>
+#include <complex>
+
 namespace pdc {
 
 namespace {
 
-void f () {
-    bin_poi poi (0.2, 0.3, 0.5);
-}
 } // namespace
+
+void bin_poi::construct_pmfs() {
+    std::vector<boost::multiprecision::cpp_complex_quad> chi(success_probabilities.size() + 1);
+    std::size_t half_size = success_probabilities.size() / 2 + (success_probabilities.size() % 2);
+    for (std::size_t i = 0; i <= half_size; i++) {
+        chi[i] = exp(i * omega * boost::multiprecision::cpp_complex_quad(0, 1));
+        std::cout << i << " " << chi[i] << "\n";
+    }
+    chi[0] = 1;
+}
 
     /*
 def __init__(self, probabilities):
