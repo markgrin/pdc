@@ -13,7 +13,9 @@ class Progressive : public Method {
     void addCall(Call& call) override {
         static EmpDist statistics(200);
         statistics.add(call.service);
-        std::cout << "mean:" << statistics.mean() << "\n";
+    }
+    void addBusy(double setup) override {
+        return ;
     }
     MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,

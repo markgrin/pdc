@@ -7,6 +7,7 @@ set (ANALYZER_SRC src/main.cpp
                   src/simulate.cpp
                   src/math/emp_dist.cpp
                   src/math/berlang.cpp
+                  src/math/bern_stat.cpp
 #                  src/bin_poi.cpp
                   src/commands/commands.cpp
                   src/commands/generate.cpp

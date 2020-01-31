@@ -29,6 +29,7 @@ struct MethodResult {
 
 struct Method {
     virtual void addCall(Call &call) = 0;
+    virtual void addBusy(double setup) = 0;
 
     virtual MethodResult calculate(std::size_t agents,
                                     std::vector<double> setup,
