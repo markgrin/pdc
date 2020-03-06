@@ -10,107 +10,67 @@ namespace {
 
 } // namespace
 
-void bin_poi::construct_pmfs() {
+std::vector<boost::multiprecision::cpp_complex_quad> bin_poi::construct_pmfs() {
     std::vector<boost::multiprecision::cpp_complex_quad> chi(success_probabilities.size() + 1);
     std::size_t half_size = success_probabilities.size() / 2 + (success_probabilities.size() % 2);
+    std::cout << "CHIS\n";
     for (std::size_t i = 0; i <= half_size; i++) {
         chi[i] = exp(i * omega * boost::multiprecision::cpp_complex_quad(0, 1));
         std::cout << i << " " << chi[i] << "\n";
     }
+    std::cout << "SQUARE TABLE\n";
+    std::vector<boost::multiprecision::cpp_complex_quad> square_table (half_size * success_probabilities.size());
+    std::vector<boost::multiprecision::cpp_complex_quad::value_type> argz_sum(half_size);
+    std::vector<boost::multiprecision::cpp_complex_quad::value_type> exparg(half_size);
+    for (std::size_t x = 0; x < half_size; x++) {
+        boost::multiprecision::cpp_complex_quad::value_type argz_sum = 0;
+        boost::multiprecision::cpp_complex_quad::value_type exparg = 0;
+        for (std::size_t y = 0; y < success_probabilities.size(); y++) {
+            auto temp = 1 + success_probabilities[y] * chi[x + 1] - success_probabilities[y];
+            argz_sum += atan2(temp.imag(), temp.real());
+            exparg += log(abs(temp));
+        }
+        auto d_value = exp(exparg);
+        chi[x + 1] = d_value * exp(argz_sum * boost::multiprecision::cpp_complex_quad(0, 1));
+    }
     chi[0] = 1;
+    return chi;
 }
 
-    /*
-def __init__(self, probabilities):
-
-check_input_prob()
-self.
-omega = 2 * np.pi / (self.number_trials + 1)
-self.
-pmf_list = self.get_pmf_xi()
-self.
-cdf_list = self.get_cdf(self.pmf_list)
-
-# ------------------------------------------------------------------------------
-# Methods for the Poisson Binomial Distribution
-# ------------------------------------------------------------------------------
-
-i = 0
-try:
-isinstance(number_successes, collections
-.Iterable)
-pvalues = np.array(number_successes, dtype = 'float')
-# if input is iterable (list, numpy.array):
-for k in number_successes:
-                pvalues[i] = 1. - self.cdf(k) + self.pmf(k)
-                i += 1
-            return pvalues
-        except TypeError:
-            # if input is an integer:
-            if number_successes == 0:
-                return 1
-            else:
-                return 1 - self.cdf(number_successes - 1)
-
-# ------------------------------------------------------------------------------
-# Methods to obtain pmf and cdf
-# ------------------------------------------------------------------------------
-
-    def get_cdf(self, event_probabilities):
-        """Return the values of the cumulative density function.
-        Return a list which contains all the values of the cumulative
-        density function for :math:`i = 0, 1, ..., n`.
-        :param event_probabilities: array of single event probabilities
-        :type event_probabilities: numpy.array
-        """
-        cdf = np.empty(self.number_trials + 1)
-        cdf[0] = event_probabilities[0]
-        for i in range(1, self.number_trials + 1):
-            cdf[i] = cdf[i - 1] + event_probabilities[i]
-        return cdf
-
-    def get_pmf_xi(self):
-        """Return the values of the variable ``xi``.
-        The components ``xi`` make up the probability mass function, i.e.
-        :math:`\\xi(k) = pmf(k) = Pr(X = k)`.
-        """
-        chi = np.empty(self.number_trials + 1, dtype=complex)
-        chi[0] = 1
-        half_number_trials = int(
-            self.number_trials / 2 + self.number_trials % 2)
-        # set first half of chis:
-        chi[1:half_number_trials + 1] = self.get_chi(
-            np.arange(1, half_number_trials + 1))
-        # set second half of chis:
-        chi[half_number_trials + 1:self.number_trials + 1] = np.conjugate(
-            chi[1:self.number_trials - half_number_trials + 1] [::-1])
-        chi /= self.number_trials + 1
-        xi = np.fft.fft(chi)
-        if self.check_xi_are_real(xi):
-            xi = xi.real
-        else:
-            raise TypeError("pmf / xi values have to be real.")
-        xi += np.finfo(type(xi[0])).eps
-        return xi
-
-    def get_chi(self, idx_array):
-        """Return the values of ``chi`` for the specified indices.
-        :param idx_array: array of indices for which the ``chi`` values should
-            be calculated
-        :type idx_array: numpy.array
-        """
-        # get_z:
-        exp_value = np.exp(self.omega * idx_array * 1j)
-        xy = 1 - self.success_probabilities + \
-            self.success_probabilities * exp_value[:, np.newaxis]
-        # sum over the principal values of the arguments of z:
-        argz_sum = np.arctan2(xy.imag, xy.real).sum(axis=1)
-        # get d value:
-        exparg = np.log(np.abs(xy)).sum(axis=1)
-        d_value = np.exp(exparg)
-        # get chi values:
-        chi = d_value * np.exp(argz_sum * 1j)
-        return chi
-
-    */
+bin_poi::bin_poi(std::vector<double> success_probabilities_in) :
+        success_probabilities (std::move(success_probabilities_in)),
+        omega (0) {
+    for (auto p : success_probabilities) {
+        if (p > 1 || p < 0) {
+            throw std::runtime_error("probability should be bounded in [0, 1]");
+        }
+    }
+    // 2 * PI / (n + 1)
+    omega = 2 * (3.1415926535897932384626433832795) / (success_probabilities.size() + 1);
+    auto chis = construct_pmfs();
+    for (std::size_t i = 0; i < success_probabilities.size() / 2; i++) {
+        const auto& conj = chis[1 + i];
+        chis[chis.size() - 1 - i] = boost::multiprecision::cpp_complex_quad(conj.real(), conj.imag() * (-1));
+    }
+    for (auto& chi : chis) {
+        chi /= success_probabilities.size() + 1;
+        std::cout << chi << " ";
+    }
+    auto sum = chis[0];
+    for (std::size_t i = 1; i < chis.size(); i++)
+       sum += chis[i];
+    std::cout << "\nSUM:" << sum << "\n";
+    auto pi = boost::math::constants::pi<boost::multiprecision::cpp_complex_quad::value_type>();
+    auto e = boost::math::constants::e<boost::multiprecision::cpp_complex_quad::value_type>();
+    auto i = boost::multiprecision::cpp_complex_quad(0, 1);
+    boost::multiprecision::cpp_complex_quad second(0, 0);
+    std::vector<boost::multiprecision::cpp_complex_quad> xi(chis.size());
+    for (std::size_t c = 0; c < chis.size(); c++) {
+        xi[c] = 0;
+        for (std::size_t n = 0; n < chis.size(); n++) {
+            xi[c] += chis[n] * pow(e, ((-2) * i * pi * c * n) / boost::multiprecision::cpp_complex_quad::value_type(chis.size()));
+        }
+    }
 }
+
+} // namespace pdc
