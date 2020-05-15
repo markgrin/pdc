@@ -200,6 +200,7 @@ class PoiBin(object):
             chi[1:self.number_trials - half_number_trials + 1] [::-1])
         chi /= self.number_trials + 1
         xi = np.fft.fft(chi)
+        print(xi)
         if self.check_xi_are_real(xi):
             xi = xi.real
         else:
@@ -216,15 +217,9 @@ class PoiBin(object):
         """
         # get_z:
         exp_value = np.exp(self.omega * idx_array * 1j)
+
         xy = 1 - self.success_probabilities + \
             self.success_probabilities * exp_value[:, np.newaxis]
-        print("START")
-        print(1-self.success_probabilities)
-        print('+++')
-        print(self.success_probabilities * exp_value[:, np.newaxis])
-        print('===')
-        print(xy)
-        print("STOP")
         # sum over the principal values of the arguments of z:
         argz_sum = np.arctan2(xy.imag, xy.real).sum(axis=1)
         # get d value:

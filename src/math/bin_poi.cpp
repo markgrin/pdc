@@ -1,7 +1,6 @@
 #include "bin_poi.hpp"
 
 #include <boost/multiprecision/cpp_complex.hpp>
-#include <iostream>
 #include <complex>
 
 namespace pdc {
@@ -13,15 +12,10 @@ namespace {
 std::vector<boost::multiprecision::cpp_complex_quad> bin_poi::construct_pmfs() {
     std::vector<boost::multiprecision::cpp_complex_quad> chi(success_probabilities.size() + 1);
     std::size_t half_size = success_probabilities.size() / 2 + (success_probabilities.size() % 2);
-    std::cout << "CHIS\n";
     for (std::size_t i = 0; i <= half_size; i++) {
         chi[i] = exp(i * omega * boost::multiprecision::cpp_complex_quad(0, 1));
         std::cout << i << " " << chi[i] << "\n";
     }
-    std::cout << "SQUARE TABLE\n";
-    std::vector<boost::multiprecision::cpp_complex_quad> square_table (half_size * success_probabilities.size());
-    std::vector<boost::multiprecision::cpp_complex_quad::value_type> argz_sum(half_size);
-    std::vector<boost::multiprecision::cpp_complex_quad::value_type> exparg(half_size);
     for (std::size_t x = 0; x < half_size; x++) {
         boost::multiprecision::cpp_complex_quad::value_type argz_sum = 0;
         boost::multiprecision::cpp_complex_quad::value_type exparg = 0;
@@ -39,6 +33,7 @@ std::vector<boost::multiprecision::cpp_complex_quad> bin_poi::construct_pmfs() {
 
 bin_poi::bin_poi(std::vector<double> success_probabilities_in) :
         success_probabilities (std::move(success_probabilities_in)),
+        xis (success_probabilities.size() + 1),
         omega (0) {
     for (auto p : success_probabilities) {
         if (p > 1 || p < 0) {
@@ -59,16 +54,14 @@ bin_poi::bin_poi(std::vector<double> success_probabilities_in) :
     auto sum = chis[0];
     for (std::size_t i = 1; i < chis.size(); i++)
        sum += chis[i];
-    std::cout << "\nSUM:" << sum << "\n";
     auto pi = boost::math::constants::pi<boost::multiprecision::cpp_complex_quad::value_type>();
     auto e = boost::math::constants::e<boost::multiprecision::cpp_complex_quad::value_type>();
     auto i = boost::multiprecision::cpp_complex_quad(0, 1);
     boost::multiprecision::cpp_complex_quad second(0, 0);
-    std::vector<boost::multiprecision::cpp_complex_quad> xi(chis.size());
     for (std::size_t c = 0; c < chis.size(); c++) {
-        xi[c] = 0;
+        xis[c] = 0;
         for (std::size_t n = 0; n < chis.size(); n++) {
-            xi[c] += chis[n] * pow(e, ((-2) * i * pi * c * n) / boost::multiprecision::cpp_complex_quad::value_type(chis.size()));
+            xis[c] += chis[n] * pow(e, ((-2) * i * pi * c * n) / boost::multiprecision::cpp_complex_quad::value_type(chis.size()));
         }
     }
 }

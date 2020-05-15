@@ -4,6 +4,7 @@
 
 #include "method.hpp"
 #include "../math/emp_dist.hpp"
+#include "../math/bin_poi.hpp"
 #include <iostream>
 
 namespace pdc {
@@ -23,9 +24,21 @@ public:
     MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,
                            std::vector<double> service) override {
-        double need = 0.97;
-        double seconds_with_no_free = 1; //;
-        double agents_free_in_that_seconds = 1;//;
+        double time_step = 1;
+        std::vector<double> pluses;
+        std::vector<double> minuses;
+        for (double time = time_step; time < setup_dist.mean() ; time += time_step) {
+            std::cout << "Calculating timestep:" << time << "\n";
+            for (std::size_t i = 0; i < setup.size(); i++) {
+                minuses.push_back(1 - setup_dist.cond(setup[i], time));
+            }
+            for (std::size_t i = 0; i < service.size(); i++) {
+                pluses.push_back(1 - service_dist.cond(service[i], time));
+            }
+            bin_poi plus_poi(pluses);
+            bin_poi minus_poi(minuses);
+        }
+
         return MethodResult(1ul);
     }
 };
