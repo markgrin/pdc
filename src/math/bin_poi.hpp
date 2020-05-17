@@ -15,13 +15,17 @@ class bin_poi {
     }
 
     std::vector<double> success_probabilities;
-    std::vector<boost::multiprecision::cpp_complex_quad> xis;
     double omega;
 
-    std::vector<boost::multiprecision::cpp_complex_quad> construct_pmfs();
+    std::vector<boost::multiprecision::cpp_complex_single> construct_pmfs();
+    std::vector<long double> pmfs;
+    std::vector<long double> cdfs;
 
 public:
     bin_poi(std::vector<double> success_probabilities_in);
+
+    int more_than(double probability_level);
+    int leq_than(double probability_level);
 };
 
 } // namespace pdc

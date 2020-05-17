@@ -1,5 +1,7 @@
 #include "emp_dist.hpp"
 
+#include <stdexcept>
+
 
 void EmpDist::add (double x) {
     points.push_front(x);
@@ -12,7 +14,7 @@ void EmpDist::add (double x) {
         points.pop_back();
         it = sorted.find(back);
         if (it == sorted.end())
-            throw std::logic_error("If point was in points, it must be in sorted");
+            throw std::runtime_error("If point was in points, it must be in sorted");
         if (it->second == 1)
             sorted.erase(it);
         else
