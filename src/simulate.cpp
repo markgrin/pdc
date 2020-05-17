@@ -50,7 +50,7 @@ std::size_t makeNewCalls (Method& method, const std::vector<Call>& calls, std::l
         if ( newCallIndex >= calls.size())
             break;
         Call newCall = calls[newCallIndex++];
-        std::cout << "MAKING NEW CALL: service:" << newCall.service << " setup:" << newCall.setup << " ans:" << newCall.answered << "\n";
+        // std::cout << "MAKING NEW CALL: service:" << newCall.service << " setup:" << newCall.setup << " ans:" << newCall.answered << "\n";
         CallPoint newCallPoint = {newCall, 0};
         //std::cout << newCall.answered << " : " << newCall.setup << " : " << newCall.service << "\n";
         call_points.push_back(newCallPoint);
@@ -63,7 +63,7 @@ std::size_t makeNewCalls (Method& method, const std::vector<Call>& calls, std::l
     //for (auto x : service_calls)
         //std::cout << x << ", ";
     //std::cout << "\n\n";
-    std::cout << "SERVICE:" << service_calls.size() << " SETUP:" << setup_calls.size() << "\n";
+    // std::cout << "SERVICE:" << service_calls.size() << " SETUP:" << setup_calls.size() << "\n";
     return agents - service_calls.size();
 }
 
@@ -72,12 +72,13 @@ std::size_t makeNewCalls (Method& method, const std::vector<Call>& calls, std::l
 SimResult simulate (double step, std::size_t agents, Method& method, const std::vector<Call>& calls) {
     std::size_t newCallIndex = 0;
     std::list<CallPoint> call_points;
-    SimResult result = {0, 0, 0, 0, 0, 0};
+    SimResult result = {0, 0, 0, 0, 0, 0, 0};
     Progressive progressive;
     LastCallTime since_last_call {};
     while (true) {
         std::size_t free_agents = 0;
         if (result.finished && static_cast<double>(result.abandoned) / result.finished > 0.03) {
+            result.limited_time += step;
             free_agents = makeNewCalls(progressive, calls, call_points, newCallIndex, agents, since_last_call);
         } else {
             free_agents = makeNewCalls(method, calls, call_points, newCallIndex, agents, since_last_call);
@@ -123,7 +124,7 @@ SimResult simulate (double step, std::size_t agents, Method& method, const std::
             }
             it++;
         }
-        std::cout << "RESULT: " << free_agents << "\n - - - \n";
+        // std::cout << "RESULT: " << free_agents << "\n - - - \n";
         since_last_call.time_passed += step;
         result.duration += step;
         result.wait_time += step * free_agents;

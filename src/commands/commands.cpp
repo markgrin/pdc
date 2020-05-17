@@ -74,6 +74,12 @@ void simulate(Core& core) {
         double critical;
         std::cin >> critical;
         berlang.set_critical(critical);
+    } else if (name == "grin") {
+        method = &grin;
+        std::cout << "critical value:";
+        double critical;
+        std::cin >> critical;
+        grin.set_critical(critical);
     }
     std::cout << "dataset:";
     std::cin >> name;
@@ -95,6 +101,7 @@ void simulate(Core& core) {
     std::cout << "wait_time:" << result.wait_time << "\n";
     std::cout << "abandoned rate:" << result.abandoned / static_cast<double>(result.answered + result.abandoned) << "\n";
     std::cout << "average wait:" << static_cast<double>(result.wait_time) / (agents * result.duration) << "\n";
+    std::cout << "limited_time:" << (static_cast<double>(result.limited_time) / result.duration) << "\n";
 }
 
 } // namespace

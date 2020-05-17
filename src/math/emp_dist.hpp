@@ -24,13 +24,7 @@ public:
     double cdf (double x) const;
 
     /**
-     * Inverse Cummulative density function
-     * TODO:Specify
-     */
-    double icdf (double p) const;
-
-    /**
-     * p( x > a + b | x > a ) = p ( a + b < x ) / p ( x > b )
+     * p( x < a + b | x > a ) = p ( a < x < a + b ) / p ( x > a )
      */
     double cond (double a, double b) const;
 

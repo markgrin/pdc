@@ -15,9 +15,9 @@ class bin_poi {
     }
 
     std::vector<double> success_probabilities;
-    double omega;
+    long double omega;
 
-    std::vector<boost::multiprecision::cpp_complex_single> construct_pmfs();
+    std::vector<std::complex<long double>> construct_pmfs();
     std::vector<long double> pmfs;
     std::vector<long double> cdfs;
 

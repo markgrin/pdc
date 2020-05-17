@@ -3,8 +3,10 @@
 #define HPP_3BE77A598E70458ABAF0AA33090ADD60
 
 #include "method.hpp"
+#include "progressive.hpp"
 #include "../math/emp_dist.hpp"
 #include "../math/bin_poi.hpp"
+#include "../math/bern_stat.hpp"
 #include "../common/timer.hpp"
 #include <iostream>
 
@@ -13,62 +15,74 @@ namespace pdc {
 class Grin : public Method {
     EmpDist setup_dist = EmpDist(200);
     EmpDist service_dist = EmpDist(200);
+    BernStat busy_dist = BernStat(200);
+    double critical = 0.97;
+    std::size_t no_skip = 0;
 
 public:
     void addCall(Call& call) override {
         setup_dist.add(call.setup);
         service_dist.add(call.service);
+        busy_dist.add(true);
     }
     void addBusy(double add) override {
-        return ;
+        busy_dist.add(false);
+       // service_dist.add(0);
+        setup_dist.add(add);
+    }
+    void set_critical(double critical_in) {
+        critical = critical_in;
     }
     MethodResult calculate (std::size_t agents,
                            std::vector<double> setup,
                            std::vector<double> service) override {
-        double time_step = 1;
+        if (!setup_dist.is_full() || !service_dist.is_full()) {
+            return Progressive().calculate(agents, setup, service);
+        }
+        agents = agents - service.size();
+        std::cout << agents << "\n";
         bool success = true;
-        std::size_t vector_init = 0;
-        std::size_t vector_pushes = 0;
-        std::size_t bin_poi_init = 0;
-        std::size_t sum_time = 0;
-        for (double time = time_step; time < setup_dist.mean() ; time += time_step) {
-            timer t;
-            t.begin();
+        double mean_sum = (setup_dist.mean() + service_dist.mean()) / 3;
+        double time_step = mean_sum / 3;
+        if (no_skip) {
+            no_skip--;
+            return MethodResult(0ul);
+        }
+        for (double time = time_step; time < mean_sum ; time += time_step) {
             std::vector<double> pluses;
             std::vector<double> minuses;
-            t.end();
-            vector_init += t.duration();
-            t = timer();
-            t.begin();
             for (std::size_t i = 0; i < setup.size(); i++) {
-                minuses.push_back(1 - setup_dist.cond(setup[i], time));
+                double value = setup_dist.cond(setup[i], time);
+                if (value < 0 && value > -0.01) {
+                    value = 0;
+                } else if (value > 1 && value < 1.01) {
+                    value = 1;
+                }
+                minuses.push_back(value);
             }
             for (std::size_t i = 0; i < service.size(); i++) {
-                pluses.push_back(1 - service_dist.cond(service[i], time));
+                double value = service_dist.cond(service[i], time);
+                if (value < 0 && value > -0.01) {
+                    value = 0;
+                } else if (value > 1 && value < 1.01) {
+                    value = 1;
+                }
+                pluses.push_back(value);
             }
-            t.end();
-            vector_pushes += t.duration();
-            t = timer();
-            t.begin();
             bin_poi plus_poi(std::move(pluses));
             bin_poi minus_poi(std::move(minuses));
-            t.end();
-            bin_poi_init += t.duration();
-            t = timer();
-            t.begin();
-            int sum_for_time = plus_poi.more_than(0.97) - minus_poi.leq_than(0.97) + static_cast<int>(agents);
-            if (sum_for_time < 0) {
+            int plus = plus_poi.more_than(critical);
+            int minus = minus_poi.leq_than(critical);
+            minus = busy_dist.get_binomial(minus, critical);
+            int sum_for_time = plus - minus + static_cast<int>(agents);
+            //std::cout << "AGENTS:" << agents << " sum:" << sum_for_time << " plus:" << plus << " minus:" << minus << "\n";
+            if (sum_for_time <= 0) {
                 success = false;
                 break;
             }
-            t.end();
-            sum_time += t.duration();
         }
-        std::cout << "VECTOR_INIT" << vector_init << "\n";
-        std::cout << "VECTOR_PUSHES" << vector_pushes << "\n";
-        std::cout << "BIN_POI_INIT" << bin_poi_init << "\n";
-        std::cout << "SUM_TIME" << sum_time << "\n";
         if (!success) {
+            //no_skip = 3;
             return MethodResult(0ul);
         }
         return MethodResult(1ul);

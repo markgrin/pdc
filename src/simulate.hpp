@@ -10,6 +10,7 @@ namespace pdc {
 struct SimResult {
     double duration;
     double wait_time;
+    double limited_time;
     std::size_t finished;
     std::size_t answered;
     std::size_t abandoned;

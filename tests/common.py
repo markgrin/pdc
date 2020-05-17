@@ -4,82 +4,88 @@ from subprocess import Popen, PIPE, STDOUT
 import subprocess
 import numpy
 
-def test_berlang(critical):
+def common_command(size):
+    dist = 'U'
     commands = ""
     commands += "generate_data\n"
     commands += "test\n"
-    commands += "10000\n"
+    commands += "1000\n"
     commands += "B\n"
     commands += "0.5\n"
-    commands += "E\n"
-    commands += "0.1\n"
-    commands += "E\n"
-    commands += "0.1\n"
+    if dist == 'E':
+        commands += "E\n"
+        commands += "0.1\n"
+        commands += "E\n"
+        commands += "0.1\n"
+    elif dist == 'U':
+        commands += "U\n"
+        commands += "1\n"
+        commands += "30\n"
+        commands += "U\n"
+        commands += "1\n"
+        commands += "30\n"
     commands += "simulate\n"
+    return commands
+
+def common_spec(agents):
+    commands = ""
+    commands += "test\n"
+    commands += str(agents) + "\n"
+    commands += "0.1\n"
+    commands += "exit\n"
+    return commands
+
+def run_commands(commands):
+    best_of = 3
+    ret = {}
+    ret['limited'] = 0
+    ret['wait'] = 0
+    ret['abandon'] = 0
+    for i in range(best_of):
+        p = Popen(['./build/analyzer'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
+        grep_stdout = p.communicate(input=bytes(commands, 'ascii'))[0]
+        result = grep_stdout.decode()
+        ret['limited'] += float(result.split('\n')[-3].split(':')[1])
+        ret['wait'] += float(result.split('\n')[-4].split(':')[1])
+        ret['abandon'] += float(result.split('\n')[-5].split(':')[1])
+    ret['limited'] /= best_of
+    ret['wait'] /= best_of
+    ret['abandon'] /= best_of
+    return ret
+
+def test_berlang(critical, agents):
+    commands = common_command(0)
     commands += "berlang\n"
     commands += str(critical) + "\n"
-    commands += "test\n"
-    commands += "20\n"
-    commands += "0.1\n"
-    commands += "exit\n"
-    p = Popen(['./build/analyzer'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    grep_stdout = p.communicate(input=bytes(commands, 'ascii'))[0]
-    result = grep_stdout.decode()
-    ret = {}
-    ret['wait'] = float(result.split('\n')[-3].split(':')[1])
-    ret['abandon'] = float(result.split('\n')[-4].split(':')[1])
-    return ret
-def test_progressive():
-    commands = ""
-    commands += "generate_data\n"
-    commands += "test\n"
-    commands += "10000\n"
-    commands += "B\n"
-    commands += "0.5\n"
-    commands += "E\n"
-    commands += "0.1\n"
-    commands += "E\n"
-    commands += "0.1\n"
-    commands += "simulate\n"
+    commands += common_spec(agents)
+    return run_commands(commands)
+
+
+def test_progressive(agents):
+    commands = common_command(0)
     commands += "progressive\n"
-    commands += "test\n"
-    commands += "20\n"
-    commands += "0.1\n"
-    commands += "exit\n"
-    p = Popen(['./build/analyzer'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-    grep_stdout = p.communicate(input=bytes(commands, 'ascii'))[0]
-    result = grep_stdout.decode()
-    ret = {}
-    ret['wait'] = float(result.split('\n')[-3].split(':')[1])
-    ret['abandon'] = float(result.split('\n')[-4].split(':')[1])
-    return ret
+    commands += common_spec(agents)
+    return run_commands(commands)
 
-critical = 0
-xs = []
-ys = []
-ys2 = []
-ys3 = []
-ys4 = []
-step = 0.03
-while critical + step < 1:
-    critical += step
-    res = test_berlang(critical)
-    xs.append(critical)
-    ys.append(res['abandon'])
-    ys2.append(res['wait'])
-    ys3.append(0.03)
-    ys4.append(test_progressive()['wait'])
-    print(res['abandon'])
-    print(res['wait'])
-    print(critical)
+def test_grin(critical, agents):
+    commands = common_command(0)
+    commands += "grin\n"
+    commands += str(1 - critical) + "\n"
+    commands += common_spec(agents)
+    print('Passing to grin critical:' + str(1 - critical))
+    return run_commands(commands)
 
-plt.plot(xs, ys, xs, ys2, xs, ys3, xs, ys4)
-plt.legend(('Abandon ratio', 'Wait ratio', '0.03 ratio', 'Progressive wait ratio'))
-plt.xlabel('Critical value')
-plt.ylabel('Ratio')
-plt.grid(True)
-plt.title('B-Erlang method perfomance')
+def get_method(name):
+    if name == 'grin':
+        return test_grin
+    elif name == 'berlang':
+        return test_berlang
+    return None
 
-plt.savefig('file.png')
-
+def get_nice_name(name):
+    if name == 'grin':
+        return 'Grin method'
+    elif name == 'berlang':
+        return 'B-Erlang method'
+    return 'Unknown method'
 

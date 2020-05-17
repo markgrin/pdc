@@ -24,6 +24,8 @@ class BernStat {
     void add (bool success);
 
     double get_p () const;
+
+    double get_binomial(std::size_t n, double prob_limit) const;
 };
 
 } // namespace pdc
