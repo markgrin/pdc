@@ -3,18 +3,18 @@ import matplotlib.pyplot as plt
 from subprocess import Popen, PIPE, STDOUT
 import subprocess
 import numpy
+import time
 
-def common_command(size):
-    dist = 'U'
+def common_command(dist, ratio, busy):
     commands = ""
     commands += "generate_data\n"
     commands += "test\n"
-    commands += "1000\n"
+    commands += "1500\n"
     commands += "B\n"
-    commands += "0.5\n"
+    commands += str(busy) + "\n"
     if dist == 'E':
         commands += "E\n"
-        commands += "0.1\n"
+        commands += str(0.1 * ratio) + "\n"
         commands += "E\n"
         commands += "0.1\n"
     elif dist == 'U':
@@ -23,7 +23,7 @@ def common_command(size):
         commands += "30\n"
         commands += "U\n"
         commands += "1\n"
-        commands += "30\n"
+        commands += str(30 * ratio) + "\n"
     commands += "simulate\n"
     return commands
 
@@ -51,24 +51,26 @@ def run_commands(commands):
     ret['limited'] /= best_of
     ret['wait'] /= best_of
     ret['abandon'] /= best_of
+    time.sleep(1)
+    print('sleeping')
     return ret
 
-def test_berlang(critical, agents):
-    commands = common_command(0)
+def test_berlang(critical, agents, dist, ratio, busy):
+    commands = common_command(dist, ratio, busy)
     commands += "berlang\n"
     commands += str(critical) + "\n"
     commands += common_spec(agents)
     return run_commands(commands)
 
 
-def test_progressive(agents):
-    commands = common_command(0)
+def test_progressive(agents, dist, ratio, busy):
+    commands = common_command(dist, ratio, busy)
     commands += "progressive\n"
     commands += common_spec(agents)
     return run_commands(commands)
 
-def test_grin(critical, agents):
-    commands = common_command(0)
+def test_grin(critical, agents, dist, ratio, busy):
+    commands = common_command(dist, ratio, busy)
     commands += "grin\n"
     commands += str(1 - critical) + "\n"
     commands += common_spec(agents)
@@ -88,4 +90,7 @@ def get_nice_name(name):
     elif name == 'berlang':
         return 'B-Erlang method'
     return 'Unknown method'
+
+def get_time():
+    return './images/' + str(time.time())
 

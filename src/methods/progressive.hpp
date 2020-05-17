@@ -21,7 +21,7 @@ class Progressive : public Method {
                            std::vector<double> setup,
                            std::vector<double> service) override
     {
-        return MethodResult(agents > setup.size() + service.size() + 1 ? agents - setup.size() - service.size() - 1 : 0);
+        return MethodResult(agents > setup.size() + service.size() ? agents - setup.size() - service.size() : 0);
     }
 };
 
